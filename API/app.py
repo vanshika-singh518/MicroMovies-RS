@@ -45,7 +45,7 @@ similarity_matrix = cosine_similarity(count_matrix)
 
 
 tmdb = TMDb()
-TMDB_API_KEY = "75f49154067c35aa93fcb726bdcc2adb"
+TMDB_API_KEY = "3d2d7c9b8757ca4982ea4b6254788094"
 tmdb.api_key = TMDB_API_KEY
 
 

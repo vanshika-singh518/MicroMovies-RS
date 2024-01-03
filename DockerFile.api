@@ -1,0 +1,21 @@
+# Build Python Flask API
+FROM python:3.8-slim as flask-api
+
+WORKDIR /app/API
+
+COPY ./API /app/API
+
+# Install Python dependencies
+COPY requirements.txt /app/API/requirements.txt
+RUN pip3 install --upgrade pip
+RUN pip install numpy
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Install Gunicorn
+RUN pip install gunicorn
+
+# Expose the port
+EXPOSE 5000
+
+# Run Gunicorn to serve both React app and Flask API
+CMD ["gunicorn", "-b", ":5000", "app:app"]

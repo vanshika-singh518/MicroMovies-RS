@@ -1,0 +1,42 @@
+# Stage 1: Build React app
+FROM node:14-alpine as build
+
+WORKDIR /app/react-movie
+
+COPY ./react-movie/package.json /app/react-movie/
+COPY ./react-movie/package-lock.json /app/react-movie/
+COPY ./react-movie/public /app/react-movie/public
+COPY ./react-movie/src /app/react-movie/src
+
+RUN npm install
+RUN npm run build
+
+# Stage 2: Build Python Flask API
+FROM python:3.8-slim as flask-api
+
+WORKDIR /app/API
+
+COPY ./API /app/API
+
+# Install Python dependencies
+COPY requirements.txt /app/API/requirements.txt
+RUN pip3 install --upgrade pip
+RUN pip install numpy
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Stage 3: Use Gunicorn to serve both React app and Flask API
+FROM python:3.8-slim
+
+WORKDIR /app
+
+COPY --from=flask-api /app /app
+COPY --from=build /app/react-movie/build /app/react-movie/build
+
+# Install Gunicorn
+RUN pip install gunicorn
+
+# Expose the port
+EXPOSE 3000
+
+# Run Gunicorn to serve both React app and Flask API
+CMD ["gunicorn", "-b", ":3000", "API.app:app"]
